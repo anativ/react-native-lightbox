@@ -27,6 +27,7 @@ var Lightbox = React.createClass({
     renderContent:   PropTypes.func,
     underlayColor:   PropTypes.string,
     backgroundColor: PropTypes.string,
+    statusBarColor:  PropTypes.string,
     onOpen:          PropTypes.func,
     onClose:         PropTypes.func,
     springConfig:    PropTypes.shape({
@@ -77,6 +78,7 @@ var Lightbox = React.createClass({
       swipeToDismiss: this.props.swipeToDismiss,
       springConfig: this.props.springConfig,
       backgroundColor: this.props.backgroundColor,
+      statusBarColor:this.props.statusBarColor,
       children: this.getContent(),
       onClose: this.onClose,
     };

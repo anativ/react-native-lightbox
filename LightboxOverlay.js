@@ -38,6 +38,7 @@ var LightboxOverlay = React.createClass({
       friction: PropTypes.number,
     }),
     backgroundColor: PropTypes.string,
+    statusBarColor:  PropTypes.string,
     isOpen:          PropTypes.bool,
     renderHeader:    PropTypes.func,
     onOpen:          PropTypes.func,
@@ -63,6 +64,7 @@ var LightboxOverlay = React.createClass({
     return {
       springConfig: { tension: 30, friction: 7 },
       backgroundColor: 'black',
+      statusBarColor: 'black'
     };
   },
 
@@ -111,7 +113,12 @@ var LightboxOverlay = React.createClass({
   },
 
   open: function() {
-    StatusBar.setHidden(true, 'fade');
+    if (Platform.OS === 'android') {
+      StatusBar.setHidden(false);
+      StatusBar.setBackgroundColor(this.props.backgroundColor,true)
+    } else {
+      StatusBar.setHidden(true, 'fade');
+    }
     this.state.pan.setValue(0);
     this.setState({
       isAnimating: true,
@@ -129,7 +136,13 @@ var LightboxOverlay = React.createClass({
   },
 
   close: function() {
-    StatusBar.setHidden(false, 'fade');
+    if (Platform.OS === 'android') {
+      StatusBar.setHidden(false);
+      StatusBar.setBackgroundColor(this.props.statusBarColor,true)
+    }
+    else {
+      StatusBar.setHidden(false, 'fade');
+    }
     this.setState({
       isAnimating: true,
     });
@@ -183,12 +196,12 @@ var LightboxOverlay = React.createClass({
       };
       lightboxOpacityStyle.opacity = this.state.pan.interpolate({inputRange: [-WINDOW_HEIGHT, 0, WINDOW_HEIGHT], outputRange: [0, 1, 0]});
     }
-
+    let heightOffset = (Platform.OS === 'android' ? 50 : 0);
     var openStyle = [styles.open, {
       left:   openVal.interpolate({inputRange: [0, 1], outputRange: [origin.x, target.x]}),
       top:    openVal.interpolate({inputRange: [0, 1], outputRange: [origin.y + STATUS_BAR_OFFSET, target.y + STATUS_BAR_OFFSET]}),
       width:  openVal.interpolate({inputRange: [0, 1], outputRange: [origin.width, WINDOW_WIDTH]}),
-      height: openVal.interpolate({inputRange: [0, 1], outputRange: [origin.height, WINDOW_HEIGHT]}),
+      height: openVal.interpolate({inputRange: [0, 1], outputRange: [origin.height + heightOffset, WINDOW_HEIGHT + heightOffset]}),
     }];
 
     var background = (<Animated.View style={[styles.background, { backgroundColor: backgroundColor }, lightboxOpacityStyle]}></Animated.View>);
@@ -215,11 +228,11 @@ var LightboxOverlay = React.createClass({
       );
     }
     return (
-      <Modal visible={isOpen} transparent={true}>
-        {background}
-        {content}
-        {header}
-      </Modal>
+        <Modal visible={isOpen} transparent={true} onRequestClose={()=>{}}>
+          {background}
+          {content}
+          {header}
+        </Modal>
     );
   }
 });
